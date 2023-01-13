@@ -61,11 +61,15 @@ class ChirpController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  \App\Models\Chirp  $chirp
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function edit(Chirp $chirp)
     {
-        //
+        $this->authorize('update', arguments: $chirp);
+
+        return view('chirps.edit', [
+            'chirp' => $chirp,
+        ]);
     }
 
     /**
@@ -73,21 +77,32 @@ class ChirpController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Chirp  $chirp
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function update(Request $request, Chirp $chirp)
     {
-        //
+        $this->authorize('update', $chirp);
+
+        $validated = $request->validate([
+            'message' => 'required|string|max:255',
+        ]);
+
+        $chirp->update($validated);
+
+        return redirect(route('chirps.index'));
+
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Chirp  $chirp
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function destroy(Chirp $chirp)
     {
-        //
+        $this->authorize('delete', $chirp);
+        $chirp->delete();
+        return redirect(route('chirps.index'));
     }
 }
